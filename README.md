@@ -9,4 +9,4 @@ Create a becktesting infrastructure for testing different porfolio optimization 
 
 ## SETUP
 
-**pip install -r requirements.txt**
+*pip install -r requirements.txt*
