@@ -1,4 +1,6 @@
 from src.backtester.benchmarks.base import Benchmark
+import numpy as np
+import pandas as pd
 
 
 class PNL(Benchmark):
@@ -19,11 +21,12 @@ class PNL(Benchmark):
 
         daily_returns = data.pct_change().fillna(0)
 
-        portfolio_pnl = (weight_predictions * daily_returns).sum(axis=1)
-        # portfolio_pnl_cumsum = portfolio_pnl.cumsum()
-        portfolio_pnl_df = portfolio_pnl.to_frame(name="Portfolio PnL")
+        portfolio_returns = (weight_predictions * daily_returns).sum(axis=1)
+        # portfolio_returns_cumsum = portfolio_pnl.cumsum()
+        portfolio_returns_df = portfolio_returns.to_frame(name=self.name)
 
-        grouped_pnl = self.groupby_freq(portfolio_pnl_df, self.freq).sum()*100
+        grouped_pnl = self.groupby_freq(portfolio_returns_df, self.freq).sum()*100
+        grouped_pnl = self.to_frame_and_indexing(grouped_pnl, self.freq, self.name)
 
         return (grouped_pnl)
 
@@ -38,15 +41,16 @@ class Sharpe(Benchmark):
         daily_returns = data.pct_change().fillna(0)
         portfolio_returns = (weight_predictions * daily_returns).sum(axis=1)
 
-        # Cumulative excess returns and Sharpe ratio over time
         excess_returns = portfolio_returns - self.risk_free_rate
-        rolling_mean = excess_returns.expanding().mean()
-        rolling_std = excess_returns.expanding().std()
+        grouped_returns = self.groupby_freq(excess_returns, self.freq)
+        mean = grouped_returns.mean()
+        std = grouped_returns.std()
+        sharpe_ratio = mean / std
 
-        sharpe_ratio = rolling_mean / rolling_std
-        sharpe_ratio_df = sharpe_ratio.to_frame(name="Sharpe Ratio")
+        sharpe_ratio_df = self.to_frame_and_indexing(sharpe_ratio, self.freq, self.name)
+        #sharpe_ratio_df = sharpe_ratio_df.replace([float('inf'), float('-inf')], 0).fillna(0)# Use the class name here
 
-        return sharpe_ratio_df.reindex(data.index).fillna(0)
+        return sharpe_ratio_df
 
 
 class MaxDrawdown(Benchmark):

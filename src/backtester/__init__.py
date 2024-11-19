@@ -91,9 +91,6 @@ class Backtester:
         try:
             # VERY IMPORTANT FOR INDEX MATCHING OR EVERYTHING AFTER THIS POINT ON PIPELINE IS FUCKED. basically i reindex weight_predictions and our data to have since indeces, and clean them properly
             weight_predictions = self.agents[0].weight_predictions
-            daily_returns = self.data.pct_change().fillna(0)
-            weight_predictions  = weight_predictions.resample('D').ffill().dropna(how='all')
-            weight_predictions = weight_predictions.reindex(daily_returns.index).ffill().fillna(0)
         except:
             raise ValueError(
                 "Agents haven't decided their weights for the whole period yet, please run agent.weights_allocate first!"
@@ -107,6 +104,8 @@ class Backtester:
             "YM": pd.DataFrame(index=weight_predictions.groupby([weight_predictions.index.year, weight_predictions.index.month]).sum().index),
             "P": pd.DataFrame(),
         }
+
+        self.data = self.data[(self.data.index.date >= self.start_date) & (self.data.index.date <= self.end_date)]
         for agent in self.agents:
             self.results[agent.sheet_name()] = copy.deepcopy(results)
             for benchmark in benchmarks:
