@@ -89,7 +89,7 @@ class Backtester:
         :return: Dictionary with the specified format.
         """
         try:
-            # VERY IMPORTANT FOR INDEX MATCHING OR EVERYTHING AFTER THIS POINT ON PIPELINE IS FUCKED. basically i reindex weight_predictions and our data to have since indeces, and clean them properly
+
             weight_predictions = self.agents[0].weight_predictions
         except:
             raise ValueError(
@@ -106,6 +106,7 @@ class Backtester:
         }
 
         self.data = self.data[(self.data.index.date >= self.start_date) & (self.data.index.date <= self.end_date)]
+        # VERY IMPORTANT FOR INDEX MATCHING OR EVERYTHING AFTER THIS POINT ON PIPELINE IS FUCKED --> index of agent.weight_predictions and self.data should have same index at this point.
         for agent in self.agents:
             self.results[agent.sheet_name()] = copy.deepcopy(results)
             for benchmark in benchmarks:
@@ -178,7 +179,7 @@ class Backtester:
                         print(frequency_results)
 
                     try:
-                        # Write results to Excel
+                        # write results to Excel
                         frequency_results.to_excel(writer, sheet_name=agent[:31],  # Excel sheet name limit is 31 characters
                             startrow=row, float_format="%.6f", )
                         row += frequency_results.shape[0] + 2  # Leave a gap between sections

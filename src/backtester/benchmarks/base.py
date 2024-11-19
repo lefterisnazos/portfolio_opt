@@ -14,7 +14,7 @@ class Benchmark:
         """
         :param weight_predictions: the predictions/weights from the Agent
         :param data: the whole period data from the backtester.
-        :return: case1)c when we output 1 value-> a pd.Series for singular values with self.name as index, column name unnamed-dontcare (eg.in case we choose 'P' as frequency)
+        :return: case1) when we output 1 value-> a pd.Series for singular values with self.name as index, column name unnamed-dontcare (eg.in case we choose 'P' as frequency)
                  case2) when we want to output more than 1 value -> a pd.Dataframe with the correct indexing based on the groupby_freq staticmethod and self.name as the column name
         """
         pass
@@ -38,16 +38,20 @@ class Benchmark:
         elif freq == 'P':
             return dataframe
 
+    # should be added for non linear metrics
     @staticmethod
     def to_frame_and_indexing(data, freq, name):
+        if isinstance(data, pd.DataFrame):
+            return data
+
         if freq == 'P':
             if isinstance(data, pd.Series):
-                dataframe = data
-                dataframe.index = ['period']
+                data.index = ['period']
+                return data
             else:
-                dataframe = pd.Series([data], index=['period'], name=name)
-        else:
-            dataframe = data.to_frame(name=name)
-        return dataframe
+                return pd.DataFrame({name: [data]}, index=['period'])
+        return data
+
+
 
 

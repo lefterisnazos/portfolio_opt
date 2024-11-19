@@ -12,7 +12,9 @@ from ticker_codes import tickers
 start_date = date(2024, 1, 1)
 end_date = date(2024, 10, 29)
 
-benchmarks = [b.PNL('P'),b.Sharpe('P')]
+benchmarks = [ b.PNL('P'),b.Sharpe('P'), b.PNL('YM'),b.Sharpe('YM')]
+
+
 
 #agents = [Agent(RandomAllocation(months_back=1))]
 agents = [Agent(HRP(months_back=2))]
@@ -26,7 +28,6 @@ back_tester = Backtester(start_date=start_date,
 for agent in agents:
     back_tester.add_agent(agent)
 
-# Expected to run for about 5 minutes for all models.
 back_tester.run_n_evaluate()
 
 # Export the results to an excel file. Display parameter is for printing results to console as well.
