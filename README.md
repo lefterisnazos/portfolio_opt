@@ -1,4 +1,4 @@
-Portfolio Optimization
+**Portfolio Optimization**
 
 ## Motivation
 
