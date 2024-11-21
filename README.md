@@ -14,4 +14,4 @@ A backtesting infrastructure for comparing and evaluating different porfolio opt
 ## SETUP
 
 *pip install -r requirements.txt*
-run src/runner.py
+*run src/runner.py*
