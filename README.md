@@ -9,8 +9,9 @@ A backtesting infrastructure for comparing and evaluating different porfolio opt
 
 * You can add benchmarks in the runner.py as follows: benchmarks = [b.PNL('P'),b.Sharpe('P')] denoting, the metric and its frequency.
 * You can add Agents, that inherit a model, and backtest them with the Backtester Class.
-* run runner.py
+
 
 ## SETUP
 
 *pip install -r requirements.txt*
+run src/runner.py
