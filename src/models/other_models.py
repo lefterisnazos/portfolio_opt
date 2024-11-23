@@ -38,8 +38,5 @@ class EqualWeights(WeightAllocationModel):
 
         return weights
 
-    def __str__(self):
-        return self.__class__.__name__
-
 
 

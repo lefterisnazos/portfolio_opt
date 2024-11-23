@@ -1,21 +1,21 @@
 from random import Random
-from src.agents import Agent
-from src.backtester import Backtester
+from agents.main import Agent
+from backtester.main import Backtester
 from datetime import date
-import src.backtester.benchmarks.evaluation as b
-from src.models.HRP_allocation import HRP
-from src.models.other_models import EqualWeights
+import backtester.benchmarks.evaluation as b
+from models.HRP_allocation import HRP
+from models.other_models import EqualWeights
 from ticker_codes import tickers
 
 # make sure to pip install -r requirements.txt
 
-start_date = date(2024, 1, 1)
+start_date = date(2020, 1, 1)
 end_date = date(2024, 10, 29)
 
 benchmarks = [b.PNL('P'),b.Sharpe('P'), b.PNL('YM'), b.Sharpe('YM')]
 
 #agents = []
-agents = [Agent(EqualWeights()),Agent(HRP(months_back=1))]
+agents = [Agent(HRP(months_back=1)), Agent(EqualWeights())]
 
 back_tester = Backtester(start_date=start_date,
                          end_date=end_date,

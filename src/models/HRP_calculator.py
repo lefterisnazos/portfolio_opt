@@ -134,15 +134,15 @@ class HRP_Calculator:
                     right_variance = self.calculate_cluster_variance(right_cluster, q_diag)
 
                     total_variance = left_variance + right_variance
-                    alpha1 = left_variance / total_variance
-                    alpha2 = right_variance / total_variance
+                    alpha1 = 1 - (left_variance / total_variance)
+                    alpha2 = 1 - alpha1
 
                     # Update the weights for assets in the left and right clusters
                     for asset in left_cluster:
-                        weights[stock_order.index(asset)] *= alpha1  # Update weight for asset in left cluster
+                        weights[asset] *= alpha1  # Update weight for asset in left cluster
 
                     for asset in right_cluster:
-                        weights[stock_order.index(asset)] *= alpha2  # Update weight for asset in right cluster
+                        weights[asset] *= alpha2  # Update weight for asset in right cluster
 
             return weights
 

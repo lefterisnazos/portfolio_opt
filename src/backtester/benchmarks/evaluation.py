@@ -1,6 +1,5 @@
-from src.backtester.benchmarks.base import Benchmark
-import numpy as np
-import pandas as pd
+from backtester.benchmarks.base import Benchmark
+
 
 
 class PNL(Benchmark):
