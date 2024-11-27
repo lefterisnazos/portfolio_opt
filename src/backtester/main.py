@@ -41,7 +41,7 @@ class Backtester:
         if self.new_agents:
             self.data_from = self.data_date_from()
             data_provider = DataProvider(self.data_from, self.end_date, self.tickers)
-            self.data = data_provider.fetch()
+            self.data = data_provider.provide()
 
             if self.tickers != self.data.columns.to_list():
                 self.tickers = self.data.columns.values

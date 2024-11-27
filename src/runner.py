@@ -4,18 +4,20 @@ from backtester.main import Backtester
 from datetime import date
 import backtester.benchmarks.evaluation as b
 from models.HRP_allocation import HRP
-from models.other_models import EqualWeights
+from models.HRP_sentiment_allocation import HRP_Sentiment
+from models.other_models import EqualWeights, MarketCapWeights
 from ticker_codes import tickers
 
 # make sure to pip install -r requirements.txt
 
-start_date = date(2020, 1, 1)
-end_date = date(2024, 10, 29)
+start_date = date(2024, 1, 1)
+end_date = date(2024, 2, 29)
 
 benchmarks = [b.PNL('P'),b.Sharpe('P'), b.PNL('YM'), b.Sharpe('YM')]
 
-#agents = []
-agents = [Agent(HRP(months_back=1)), Agent(EqualWeights())]
+# agents = []
+# months_back determines the amount of data used to make any prediction/weights_allocations
+agents = [Agent(MarketCapWeights()), Agent(HRP_Sentiment(months_back=5, include_sentiment=True, async_getter=True))]
 
 back_tester = Backtester(start_date=start_date,
                          end_date=end_date,

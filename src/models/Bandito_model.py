@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from base import WeightAllocationModel
 from  HRP_allocation import HRP
-from sentiment_allocation import Sentiment_Finbert
 
 # TODO: understand this functions and clean them up
 class Bandito_Model(WeightAllocationModel):
@@ -20,6 +19,5 @@ class Bandito_Model(WeightAllocationModel):
 
         # calculate in a rolling basis the weights, by calculating hrp and the sentiment second in a loop
         # by nature, the sentiment has to have as an extra input current weights, so its structure will be different from hrp abstract
-
 
         pass

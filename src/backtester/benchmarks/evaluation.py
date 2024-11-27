@@ -18,9 +18,7 @@ class PNL(Benchmark):
         more precisely: log(total_ret) = log((1+r1)*(1+r2)*...*(1_r_n)) = log(1+r1) + log(1+r2) + ... + log(1+r_n) = r1 + r2 + rn returns
         """
 
-        daily_returns = data.pct_change().fillna(0)
-
-        portfolio_returns = (weight_predictions * daily_returns).sum(axis=1)
+        portfolio_returns = (weight_predictions * data).sum(axis=1)
         # portfolio_returns_cumsum = portfolio_pnl.cumsum()
         portfolio_returns_df = portfolio_returns.to_frame(name=self.name)
 
@@ -37,8 +35,7 @@ class Sharpe(Benchmark):
 
     def calculate(self, weight_predictions, ticker_list, data, **kwargs):
 
-        daily_returns = data.pct_change().fillna(0)
-        portfolio_returns = (weight_predictions * daily_returns).sum(axis=1)
+        portfolio_returns = (weight_predictions * data).sum(axis=1)
 
         excess_returns = portfolio_returns - self.risk_free_rate
         grouped_returns = self.groupby_freq(excess_returns, self.freq)
@@ -49,7 +46,7 @@ class Sharpe(Benchmark):
         sharpe_ratio_df = self.to_frame_and_indexing(sharpe_ratio, self.freq, self.name)
         #sharpe_ratio_df = sharpe_ratio_df.replace([float('inf'), float('-inf')], 0).fillna(0)
 
-        return sharpe_ratio
+        return sharpe_ratio_df
 
 
 class MaxDrawdown(Benchmark):
@@ -59,8 +56,7 @@ class MaxDrawdown(Benchmark):
 
     def calculate(self, weight_predictions, ticker_list, data, **kwargs):
 
-        daily_returns = data.pct_change().fillna(0)
-        portfolio_returns = (weight_predictions * daily_returns).sum(axis=1)
+        portfolio_returns = (weight_predictions * data).sum(axis=1)
 
         cumulative_returns = (1 + portfolio_returns).cumprod()
 
@@ -80,8 +76,7 @@ class Volatility(Benchmark):
 
     def calculate(self, weight_predictions, ticker_list, data, **kwargs):
 
-        daily_returns = data.pct_change().fillna(0)
-        portfolio_returns = (weight_predictions * daily_returns).sum(axis=1)
+        portfolio_returns = (weight_predictions * data).sum(axis=1)
 
         rolling_volatility = portfolio_returns.rolling(self.window).std()
 

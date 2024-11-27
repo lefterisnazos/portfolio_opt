@@ -49,9 +49,16 @@ etf_ticker_universe = {'xlb': materials_tickers, 'xlc': communication_services_t
     'xlk': technology_tickers, 'xlp': consumer_staples_tickers, 'xlu': utilities_tickers, 'xlv': health_care_tickers, 'xly': consumer_discretionary_tickers,
     'xlre': real_estate_tickers}
 
+# "BRK.B" stock was problematic, and was messing up hrp.
 tickers = [
-    "AAPL", "MSFT", "AMZN", "GOOGL", "TSLA", "NVDA", "JNJ", "JPM",
-    "V", "PG", "UNH", "HD", "MA", "DIS", "PYPL", "NFLX", "ADBE", "KO",
-    "PFE", "NKE", "PEP", "MRK", "CSCO", "ABT", "CRM", "AVGO", "CMCSA", "T",
-    "XOM", "CVX", "WMT", "INTC", "AMD", "BA", "COST", "QCOM", "TXN", "ORCL",
-    "MMM", "HON", "AMGN", "SPGI", "CAT", "GS", "MDT", "BLK", "USB", "LMT"]
+    "NVDA", "AAPL", "MSFT", "AMZN", "GOOGL", "GOOG", "META", "TSLA", "AVGO",
+    "WMT", "JPM", "LLY", "V", "UNH", "XOM", "MA", "COST", "HD", "PG",
+    "NFLX", "JNJ", "CRM", "BAC", "ABBV", "CVX", "TMUS", "KO", "MRK", "WFC",
+    "BX", "CSCO", "ADBE", "ACN", "AMD", "PEP", "NOW", "MS", "LIN", "AXP",
+    "DIS", "IBM", "TXN", "PFE", "TMO", "C", "INTU", "PM", "BMY", "GS",
+    "QCOM", "BKNG", "DHR", "CMCSA", "T", "RTX", "BLK", "SPGI", "AMGN", "UNP",
+    "HON", "MDT", "CAT", "COP", "SLB", "GE", "SBUX", "CHTR", "MDLZ", "CL",
+    "GM", "F", "MMM", "TGT", "LMT", "NOC", "RTX", "BA", "DAL", "LUV",
+    "AAL", "UAL", "MAR", "HLT", "MCD", "YUM", "CMG", "DPZ", "DRI", "BBY",
+    "LOW", "TJX", "ROST", "DG", "DLTR", "AZO", "ORLY", "AAP", "KMX", "TSLA"
+]

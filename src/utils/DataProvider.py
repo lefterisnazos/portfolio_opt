@@ -14,7 +14,6 @@ class DataProvider:
         self.data = pd.DataFrame()  # Initialize to empty
         self.target = target
 
-
     def provide(self) -> pd.DataFrame:
         """
         Main class function which returns the ticker data requested.
@@ -22,9 +21,9 @@ class DataProvider:
         Returns pd.DataFrame with ticker returns for the class date range.
         """
         self.fetch()
-        self.clean()
+        #self.clean()
         self.calc_returns()
-        return self.data
+        return self.data[1:]
 
     def fetch(self) -> pd.DataFrame:
         start_str = self.start.strftime('%Y-%m-%d')
@@ -62,4 +61,4 @@ class DataProvider:
         Returns pd.DataFrame with ticker returns.
         """
         self.data = self.data.pct_change()
-        self.data = self.data.dropna()
+        self.data = self.data.fillna(0)
