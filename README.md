@@ -2,7 +2,7 @@
 
 ## Motivation
 
-A backtesting infrastructure for comparing and evaluating different porfolio optimization strategies against benchmarks.  (python 3.9.10)
+A backtesting infrastructure for comparing and evaluating different porfolio optimization strategies against benchmarks
 
 ![image](https://github.com/user-attachments/assets/4dd2dad7-70af-44b6-a34b-7147686b8f4b)
 
