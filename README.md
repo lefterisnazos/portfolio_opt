@@ -2,7 +2,7 @@
 
 ## Motivation
 
-A backtesting infrastructure for comparing and evaluating different porfolio optimization strategies against benchmarks.
+A backtesting infrastructure for comparing and evaluating different porfolio optimization strategies against benchmarks.  (python 3.9.10)
 
 ![image](https://github.com/user-attachments/assets/4dd2dad7-70af-44b6-a34b-7147686b8f4b)
 
@@ -11,10 +11,11 @@ A backtesting infrastructure for comparing and evaluating different porfolio opt
 2) The current implementation doesnt save the weights. It outputs the simulation results against the benchmarks we have decided we want to show.
 
 * You can add benchmarks in the runner.py as follows: benchmarks = [b.PNL('P'),b.Sharpe('P')] denoting, the metric and its frequency
-* You can add Agents, that inherit a model, and backtest them with the Backtester Class.
+* You add Agents, that inherit a model, and backtest them with the Backtester Class.
 
 * For runner to run, you need to have a polygon_apikey (subscription based). The tickers list and api_key are found in the ticker_codes.py file
-* run src/runner.py. 
+  
+* run src/runner.py.  
 
 ## Models Implemented
 
