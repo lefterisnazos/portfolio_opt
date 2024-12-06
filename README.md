@@ -20,7 +20,7 @@ A backtesting infrastructure for comparing and evaluating different porfolio opt
 
 * HRP based on Lopez De Prados implementation
 * HRP + News_Sentiment:
-     - HRP added with ticker news sentiment utilizing a pretrained financial BERT model -> tokenizer = BertTokenizer.from_pretrained('yiyanghkust/finbert-tone'), and polygon.io api for getting news articles.
+     - HRP + ticker news sentiment utilizing a pretrained financial BERT model (tokenizer = BertTokenizer.from_pretrained('yiyanghkust/finbert-tone'), and polygon.io api for getting articles for tickers for given timestamps.
      - News Data getters are implemented asynchronously. 
 * Benchmark Models:
    - Market Cap Weighted Portfolio
