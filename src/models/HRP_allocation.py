@@ -14,6 +14,12 @@ class HRP(WeightAllocationModel):
         # Determine the historical data needed based on months_back parameter
         return date_from - pd.DateOffset(months=self.months_back)
 
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __hash__(self):
+        return self.__class__.__name__.__hash__()
+
     def weights_allocate(self, date_from, date_to, ticker_list, data, **params):
         weights_list = []
 
@@ -42,7 +48,7 @@ class HRP(WeightAllocationModel):
             weights_df =  weights_df[data.columns]
             weights_list.append(weights_df)
 
-            plot_hrp_weights(hrp_weights, len(weights_list))
+            # plot_hrp_weights(hrp_weights, len(weights_list))
 
         # Concatenate all weights and sort by index (date)
         weight_predictions = pd.concat(weights_list)

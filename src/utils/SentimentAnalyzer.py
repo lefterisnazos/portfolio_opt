@@ -7,6 +7,11 @@ from urllib3.util.retry import Retry
 import aiohttp
 import asyncio
 from aiohttp import ClientSession
+import os
+import certifi
+os.environ['SSL_CERT_FILE'] = certifi.where()
+import nest_asyncio
+nest_asyncio.apply()
 
 
 class SentimentAnalyzer:
@@ -16,6 +21,15 @@ class SentimentAnalyzer:
     for a given subperiod, The finbert model will evaluate number_of_stocks * amount of articles
     """
     def __init__(self, finbert=True):
+        """
+        Initialize the constructor with the finbert model and tokenizer.
+
+        Parameters
+        ----------
+        finbert : bool
+            Whether to use the finbert model or not. Default is True.
+        ----------
+        """
         self.api_key = 'LTLVSbi7rBjyjJtCpmLuTDPPhFsNSCyy'
         self.finbert_tokenizer, self.finbert_model, self.finbert_tokenizer = None, None, None
 
@@ -25,10 +39,26 @@ class SentimentAnalyzer:
             self.finbert_pipeline = pipeline(task="sentiment-analysis", model="yiyanghkust/finbert-tone", tokenizer=self.finbert_tokenizer)
 
     def fetch_ticker_news_with_retries(self, start_date, end_date, ticker):
+        """
+        Fetch news articles for a given ticker using the Polygon.io API with retries.
+
+        Parameters
+        ----------
+        start_date : datetime.date
+            The start date to fetch news articles.
+        end_date : datetime.date    
+            The end date to fetch news articles.    
+        ticker : str    
+            The ticker to fetch news articles for.
+        ----------
+        Returns a list of news articles for the given ticker.
+        """
         url = "https://api.polygon.io/v2/reference/news"
         params = {'ticker': ticker,
                   'published_utc.gte': start_date.strftime('%Y-%m-%d'),
                   'published_utc.lte': end_date.strftime('%Y-%m-%d'),
+                  'limit': 5,
+                  'sort': 'published_utc',
                   'apiKey': self.api_key}
 
         session = requests.Session()
@@ -37,7 +67,7 @@ class SentimentAnalyzer:
         session.mount("https://", adapter)
 
         try:
-            response = session.get(url, params=params, timeout=5)
+            response = session.get(url, params=params, timeout=20)
             response.raise_for_status()
             return response.json().get('results', [])
         except requests.exceptions.RequestException as e:
@@ -46,31 +76,72 @@ class SentimentAnalyzer:
 
     async def fetch_ticker_news_async(self, session: ClientSession, start_date, end_date, ticker):
         """
-        Fetch news articles asynchronously for a given ticker.
+        Fetch news articles for a given ticker asynchronously using the Polygon.io API.
+
+        Parameters
+        ----------
+        session : aiohttp.ClientSession
+            The aiohttp client session to use for the request.
+        start_date : datetime.date
+            The start date to fetch news articles.
+        end_date : datetime.date    
+            The end date to fetch news articles.
+        ticker : str
+            The ticker to fetch news articles for.
+        ----------
+        Returns a list of news articles for the given ticker.
         """
         url = "https://api.polygon.io/v2/reference/news"
-        params = {'ticker': ticker, 'published_utc.gte': start_date.strftime('%Y-%m-%d'), 'published_utc.lte': end_date.strftime('%Y-%m-%d'), 'apiKey': self.api_key}
+        params = {'ticker': ticker,
+                  'published_utc.gte': start_date.strftime('%Y-%m-%d'),
+                  'published_utc.lte': end_date.strftime('%Y-%m-%d'),
+                  'limit': 5,
+                  'sort': 'published_utc',
+                  'apiKey': self.api_key}
 
-        try:
-            async with session.get(url, params=params, timeout=5) as response:
-                response.raise_for_status()
-                json_response = await response.json()
-                return json_response.get('results', [])
-        except aiohttp.ClientError as e:
-            print(f"Error fetching news for {ticker}: {e}")
-            return []
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                async with session.get(url, params=params, timeout=15) as response:
+                    response.raise_for_status()
+                    json_response = await response.json()
+                    return json_response.get('results', [])
+            except aiohttp.ClientError as e:
+                print(f"Attempt {attempt + 1}/{max_retries}: Error fetching news for {ticker}: {e}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(4)
+                else:
+                    return []
 
     async def fetch_all_ticker_news(self, start_date, end_date, ticker_list):
         """
-        Fetch news for all tickers asynchronously.
+        Fetch news articles for all tickers asynchronously using the Polygon.io API.
+
+        Parameters
+        ----------
+        start_date : datetime.date
+            The start date to fetch news articles.
+        end_date : datetime.date    
+            The end date to fetch news articles.
+        ticker : str
+            The ticker to fetch news articles for.
+        ----------
+        Returns a list of news articles for the given ticker.
         """
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
             tasks = [self.fetch_ticker_news_async(session, start_date, end_date, ticker) for ticker in ticker_list]
             return await asyncio.gather(*tasks)
 
     def calculate_sentiment(self, news_list):
         """
         Aggregate sentiment scores using the 'insights' key (Polygon.io) that has sentiment values for each article in the results/news_list
+
+        Parameters
+        ----------
+        news_list : List[Dict]
+            A list of news articles to calculate sentiment
+        ----------
+        Returns the aggregated sentiment score for the given news articles.
         """
         sentiment_scores = []
         for article in news_list:
@@ -87,6 +158,13 @@ class SentimentAnalyzer:
     def calculate_finbert_sentiment(self, news_list):
         """
         Calculate the aggregated sentiment using the FinBERT model for a list of news articles.
+
+        Parameters
+        ----------
+        news_list : List[Dict]
+            A list of news articles to calculate sentiment
+        ----------
+        Returns a dictionary of sentiment scores for the given news articles.
         """
         sentiment_scores = {"Positive": 0, "Negative": 0, "Neutral": 0}
         total_articles = len(news_list)
@@ -122,8 +200,13 @@ class SentimentAnalyzer:
         """
         Calculate an overall sentiment score based on the FinBERT total scores of each class
 
+        Parameters
+        ----------
+        sentiment_scores: Dict 
+            Dictionary of sentiment scores. Values are the total scores for each of the pos,neg,neutral cases
+        ----------
         sentiment_scores: Dictionary of sentiment scores. Values are the total scores for each of the pos,neg,neutral cases
-        :return: aggregated final sentiment score
+        return: aggregated final sentiment score
         """
         total_score = sum(sentiment_scores.values())
         if total_score == 0:

@@ -9,45 +9,95 @@ class RelationalStatistics:
     """
 
     def __init__(self, data: pd.DataFrame) -> None:
+
         """
-        pd.DataFrame data: data of ticker returns
+        Constructor of the RelationalStatistics class.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            data of ticker returns 
+        ----------
+        
         """
         self.data = data
 
     def calc_standard_deviations(self) -> pd.DataFrame:
         """
         Generates standard deviations for class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the standard deviations of the data.
+        
         """
         return self.data.std()
 
     def calc_variances(self) -> pd.DataFrame:
         """
-        Generates variances for class data
+        Generates variance for class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the variance of the data.
+        
         """
         return self.data.var()
 
     def calc_covariance_matrix(self) -> pd.DataFrame:
         """
-        Generates the covariance matrix for class data
+        Calculates the covariance matrix for the class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the covariance matrix of the data.
+        
         """
         return self.data.cov()
 
     def calc_correlation_matrix(self) -> pd.DataFrame:
         """
-        Generates the correlation matrix for class data
+        Generates correlation matrix for class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the correlation matrix of the data.
+        
         """
         return self.data.corr()
 
     def calc_correlation_distance(self) -> pd.DataFrame:
         """
-        Generates correlation distance matrix for the class data
+        Generates correlation distance for class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the correlation distance of the data.
+        
         """
         corr_distance_matrix = (0.5 * (1 - self.calc_correlation_matrix())) ** 0.5
         return corr_distance_matrix
 
     def calc_eucledian_distance(self) -> pd.DataFrame:
         """
-        Generates eucledian distance matrix for the class data
+        Calculates eucledian distance for the class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the eucledian distance of the data.
+        
         """
         distance_matrix = self.calc_correlation_distance()
         euclidean_distance_matrix = euclidean_distances(distance_matrix.values)
@@ -57,14 +107,27 @@ class RelationalStatistics:
 
     def calc_shrinkage_coefficient(self) -> float:
         """
-        Generates shrinkage coefficient for the class data using heuristic.
-        That is lambda = num of variables/ num of observations
+        Calculates the shrinkage coefficient for the class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a float of the shrinkage coefficient of the data.
+        
         """
         return self.data.shape[1] / self.data.shape[0]
 
     def calc_average_correlation(self) -> float:
         """
-        Generate average correlation amongst variables in the class data
+        Generates the average correlation for the class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a float of the average correlation of the data.
+        
         """
         correlation = self.calc_correlation_matrix()
         # all diagonal 0
@@ -82,8 +145,14 @@ class RelationalStatistics:
 
     def calc_target_covariance_matrix(self) -> pd.DataFrame:
         """
-        Generated the target covariance matrix used in the shrinkage function
-        Target = fixed correlation matrix
+        Generates the target covariance matrix for the class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a float of the covariance matrix of the data.
+        
         """
         sample_cov_matrix = self.calc_covariance_matrix()
         fixed_correlation = self.calc_average_correlation()
@@ -106,7 +175,13 @@ class RelationalStatistics:
 
     def calc_shrinkage_covariance(self) -> pd.DataFrame:
         """
-        Generates the shrinkage covariance method
+        Generates the shrinkage covariance matrix for the class data
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns a pd.DataFrame of the shrinkage covariance matrix of the data.        
         """
         shrinkage_coefficient = self.calc_shrinkage_coefficient()
         sample_cov_matrix = self.calc_covariance_matrix()

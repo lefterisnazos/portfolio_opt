@@ -6,7 +6,6 @@ import scipy.cluster.hierarchy as sch
 from scipy.spatial.distance import squareform
 from .RelationalStatistics import RelationalStatistics
 from typing import List
-import riskfolio as rp
 
 
 class HRP_Calculator:
@@ -14,17 +13,36 @@ class HRP_Calculator:
     Portfolio optimization using Hierarchical Risk Parity (HRP)
     """
 
-    def __init__(self, data):
-        """
-        pd.DataFrame data: data of ticker returns
-        class RelationalStatistics: module for relational statistics
+    def __init__(self, data, use_shrinkage = True):
+        """    
+        Constructor of the HRP_Calculator class.
+        Initializes the data and stats_module attributes.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            A pandas DataFrame of asset returns. NOT COVARIANCE MATRIX.
+        use_shrinkage : bool, optional
+            A boolean flag to indicate whether to use shrinkage covariance matrix or not.
+            The default is True.
+        stats_module : RelationalStatistics
+            An instance of the RelationalStatistics class. Uses the functions
+            in RelationalStatistics to calculate statistics.
+        ----------
         """
         self.data = data
         self.stats_module = RelationalStatistics(data)
+        self.use_shrinkage = use_shrinkage
 
     def hierarchical_clustering(self) -> np.ndarray:
-        """
-        Performs hierarchical clustering on the euclidean distance matrix.
+        """    
+        This function performs hierarchical clustering on the data using eucledian distance.
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns an array of the linkage matrix.
         """
         eucledian_df = self.stats_module.calc_eucledian_distance()
         linkage_matrix = linkage(eucledian_df, 'single')
@@ -34,9 +52,13 @@ class HRP_Calculator:
         """
         Get the cluster pairs in order of merging from the linkage matrix.
 
-        Returns:
-            List[Tuple[List[int], List[int]]]: A list of tuples where each tuple contains
-                                               the left and right clusters being merged.
+        Parameters
+        ----------
+        None
+        ----------
+
+        Returns List[Tuple[List[int], List[int]]]: A list of tuples where each tuple contains
+        the left and right clusters being merged.
         """
         linkage_matrix = self.hierarchical_clustering()
         n_assets = linkage_matrix.shape[0] + 1  # Number of original assets (leaf nodes)
@@ -62,6 +84,13 @@ class HRP_Calculator:
     def get_cluster_order(self) -> List[str]:
         """
         Gets the cluster order from the hierarchical clustering.
+        
+        Parameters
+        ----------
+        None
+        ----------
+
+        Returns list of the merged assets in the order of merging.
         """
         n = self.data.shape[1]  # total number of assets
         linkage_matrix = self.hierarchical_clustering()
@@ -86,12 +115,19 @@ class HRP_Calculator:
         """
         Use the linkage matrix and cluster order to quasi-diagonalize the covariance matrix.
         Such that the highest correlations are along the diagonal.
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns pd.DataFrame: A quasi-diagonalized covariance
         """
         cluster_order = self.get_cluster_order()
 
         # ensure cluster_order is a 1D array, otherwise flatten
         cluster_order = np.ravel(cluster_order)
-        cov_matrix = self.stats_module.calc_covariance_matrix()
+
+        cov_matrix = self.stats_module.calc_shrinkage_covariance() if self.use_shrinkage else self.stats_module.calc_covariance_matrix()
 
         if isinstance(cov_matrix, pd.DataFrame):  # ensure cov matrix is a pd.DataFrame
             reordered_matrix = cov_matrix.iloc[cluster_order, cluster_order].values
@@ -104,24 +140,44 @@ class HRP_Calculator:
         """
         Calculate the variance for a given cluster by summing the diagonal values
         from the covariance matrix for the assets in the cluster.
+
+        Parameters
+        ----------
+        cluster : List[int]
+            A list of asset indices in the cluster.
+        cov_matrix : np.ndarray
+            The covariance matrix of the assets.
+        ----------
+
+        Returns the total variance of the cluster.
         """
         # If the cluster contains sub-clusters, recursively calculate the variance
-        if isinstance(cluster, list):
-            # For numpy arrays, we use numpy indexing to select the relevant sub-matrix
-            cluster_cov = cov_matrix[np.ix_(cluster, cluster)]
-            # Sum the diagonal to get the variance
-            return np.sum(np.diagonal(cluster_cov))
-        else:
-            # If it's just a single asset, return its variance
-            return cov_matrix[cluster, cluster]
+        cluster_cov = cov_matrix[np.ix_(cluster, cluster)]
+
+        # Sum the diagonal elements to compute total variance
+        total_variance = np.sum(np.diag(cluster_cov))
+
+        return total_variance
 
     def weights_allocate(self):
+        """
+        Calculate the weights for the assets in the portfolio using Hierarchical Risk Parity (HRP).
+        Makes use of the quasi-diagonalized covariance matrix to allocate weights.
+
+        Parameters
+        ----------
+        None
+        ----------
+        Returns Dict[str, float]: A dictionary of asset tickers and their corresponding
+        weights in the portfolio.
+        """
         # Initialize required variables
         H_clustering = self.hierarchical_clustering()
         stock_order = self.get_cluster_order()
         q_diag = self.quasi_diagonalization()
         cluster_order = self.get_cluster_pairs()
         weights = np.ones(len(stock_order))  # Initialize weights with 1 for all assets
+        #cov_matrix = self.stats_module.calc_shrinkage_covariance() if self.use_shrinkage else self.stats_module.calc_covariance_matrix()
 
         def allocate_recursive(cluster_order, weights):
             # Iterate through cluster pairs in reversed order
@@ -142,10 +198,10 @@ class HRP_Calculator:
 
                     # Update the weights for assets in the left and right clusters
                     for asset in left_cluster:
-                        weights[asset] *= alpha1  # Update weight for asset in left cluster
+                        weights[asset] *= alpha2  # Update weight for asset in left cluster
 
                     for asset in right_cluster:
-                        weights[asset] *= alpha2  # Update weight for asset in right cluster
+                        weights[asset] *= alpha1  # Update weight for asset in right cluster
 
             return weights
 
