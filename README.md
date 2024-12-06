@@ -38,5 +38,5 @@ A backtesting infrastructure for comparing and evaluating different porfolio opt
 
 ## SETUP
 
-*pip install -r requirements.txt*
+*pip install -r requirements.txt*         (python 3.9.10)
 
